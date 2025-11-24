@@ -1,6 +1,6 @@
 
-#include "bpf.h"
-#include "bpf_helpers.h"
+#include "linux_includes/bpf.h"
+#include "linux_includes/bpf_helpers.h"
 
 SEC("xdp_forwarder")
 int pxp_forwarder(struct xdp_md *ctx)

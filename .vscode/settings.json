@@ -1,0 +1,10 @@
+{
+  "files.associations": {
+    "*.kt": "go",
+    "bpf.h": "c",
+    "bpf_endian.h": "c",
+    "pxp_structs.h": "c",
+    "vmlinux.h": "c",
+    "udp.h": "c"
+  }
+}
