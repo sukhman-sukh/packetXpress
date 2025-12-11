@@ -16,7 +16,21 @@ import (
 func main() {
 	// Parse command-line arguments
 	config := core.ParseFlags()
+	
+	if config.FirewallMode {
+		
+		    rootColl, err := utils.LoadRootCollection()
+    if err != nil {
+        log.Fatalf("Failed to load root collection: %v", err)
+    }
+    defer rootColl.Collection.Close()
+		if err := core.UpdateFirewallPort(rootColl, config.Action, config.Dport); err != nil {
+			log.Fatalf("Firewall error: %v", err)
+		}
 
+    fmt.Println("Firewall rule updated (XDP is already running)")
+    return
+	}
 	// Load root eBPF collection
 	rootColl, err := utils.LoadRootCollection()
 	if err != nil {
