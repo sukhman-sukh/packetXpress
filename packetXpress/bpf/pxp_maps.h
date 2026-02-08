@@ -31,11 +31,3 @@ struct
     __uint(pinning, LIBBPF_PIN_BY_NAME);
 } agent_array SEC(".maps");
 
-// Firewall config map: holds a single TCP destination port to DROP
-struct
-{
-    __uint(type, BPF_MAP_TYPE_ARRAY);
-    __uint(max_entries, 1);
-    __type(key, __u32);
-    __type(value, __u16);
-} firewall_dport SEC(".maps");

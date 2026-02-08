@@ -15,12 +15,12 @@ const (
 	// Program names
 	XdpRootProgramName = "xdp_root"
 
-	// Roles (must match bpf/pxp_constants.h: ROLE_MODE_MASTER=0, ROLE_MODE_AGENT=1)
-	ROLE_MASTER = 0 // matches ROLE_MODE_MASTER in BPF
-	ROLE_AGENT  = 1 // matches ROLE_MODE_AGENT in BPF
+	// Roles
+	ROLE_MASTER = 0
+	ROLE_AGENT  = 1
 	ROLE_KEY    = 0
 
-	// Number of Masters (for loop upper bound in main.go)
+	// Master pipeline
 	NumMasters = 4
 
 	RootObjPath     = "../build/xdp_root.o"
@@ -31,22 +31,46 @@ const (
 	AgentMapName    = "agent_array"
 
 	PROFILER_OUTPUT_FILE = "/tmp/packetXpress/packet_profiler.log"
+
+	// Firewall BPF map names
+	FwMapSrcIPBV      = "fw_src_ip_bv"
+	FwMapDstIPBV      = "fw_dst_ip_bv"
+	FwMapSrcPortBV    = "fw_src_port_bv"
+	FwMapDstPortBV    = "fw_dst_port_bv"
+	FwMapProtoBV      = "fw_proto_bv"
+	FwMapWildcardBV   = "fw_wildcard_bv"
+	FwMapActions      = "fw_actions"
+	FwMapChainMask    = "fw_chain_mask"
+	FwMapDefaultAction = "fw_default_action"
+	FwMapLocalIPs     = "fw_local_ips"
+	FwMapFwdParams    = "fw_fwd_params_map"
+
+	// ---- Firewall pin path ----
+	FwPinPath   = "/sys/fs/bpf/packetxpress"
+	FwRulesFile = "/tmp/packetxpress/firewall_rules.json"
+
+	// ---- Firewall constants (must match BPF defines) ----
+	FwMaxRules     = 64
+	FwActionDrop    = 0
+	FwActionAccept  = 1
+	FwActionForward = 2
+	FwChainInput    = 0
+	FwChainForward  = 1
 )
 
-// Master program names (from BPF files: SEC names)
-// Order: firewall -> balancer -> packet_profiler -> forwarder
+// Master program SEC names — order: firewall → balancer → profiler → forwarder
 var MasterProgramNames = [NumMasters]string{
-	"pxp_firewall",        // from pxp_firewall.c
-	"pxp_balancer",        // from pxp_balancer.c
-	"pxp_packet_profiler", // from pxp_packetprofiler.c
-	"pxp_forwarder",       // from pxp_forwarder.c
+	"pxp_firewall",
+	"pxp_balancer",
+	"pxp_packet_profiler",
+	"pxp_forwarder",
 }
 
 // Master object file paths (from build directory)
 // Order: firewall -> balancer -> packet_profiler -> forwarder
 var MasterObjFiles = [NumMasters]string{
-	"../build/pxp_firewall.o",       // from pxp_firewall.c
-	"../build/pxp_balancer.o",       // from pxp_balancer.c
-	"../build/pxp_packetprofiler.o", // from pxp_packetprofiler.c
-	"../build/pxp_forwarder.o",      // from pxp_forwarder.c
+	"../build/pxp_firewall.o",
+	"../build/pxp_balancer.o",
+	"../build/pxp_packetprofiler.o",
+	"../build/pxp_forwarder.o",
 }

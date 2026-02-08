@@ -16,20 +16,10 @@ import (
 func main() {
 	// Parse command-line arguments
 	config := core.ParseFlags()
-	
-	if config.FirewallMode {
-		
-		    rootColl, err := utils.LoadRootCollection()
-    if err != nil {
-        log.Fatalf("Failed to load root collection: %v", err)
-    }
-    defer rootColl.Collection.Close()
-		if err := core.UpdateFirewallPort(rootColl, config.Action, config.Dport); err != nil {
-			log.Fatalf("Firewall error: %v", err)
-		}
 
-    fmt.Println("Firewall rule updated (XDP is already running)")
-    return
+	if config.FirewallMode {
+		core.HandleFirewallCommand(config.FwArgs)
+		return
 	}
 	// Load root eBPF collection
 	rootColl, err := utils.LoadRootCollection()
@@ -65,7 +55,6 @@ func main() {
 	// Detach any existing XDP program from interface first
 	if err := utils.DetachXDP(config.Iface); err != nil {
 		log.Printf("Warning: Failed to detach existing XDP program (may not exist): %v", err)
-		// Continue anyway - interface might not have XDP attached
 	}
 
 	// Attach root XDP program to interface
@@ -76,6 +65,12 @@ func main() {
 	defer xdpLink.Close()
 
 	fmt.Println("XDP Root loaded and chain initialized")
+
+	if config.Role == "master" {
+		if err := core.FwSync(); err != nil {
+			log.Printf("Note: firewall sync: %v (rules will apply once added)", err)
+		}
+	}
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
