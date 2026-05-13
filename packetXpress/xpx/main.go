@@ -21,6 +21,11 @@ func main() {
 		core.HandleFirewallCommand(config.FwArgs)
 		return
 	}
+
+	if config.BalancerMode {
+		core.HandleBalancerCommand(config.BalancerArgs)
+		return
+	}
 	// Load root eBPF collection
 	rootColl, err := utils.LoadRootCollection()
 	if err != nil {

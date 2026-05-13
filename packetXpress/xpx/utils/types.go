@@ -5,8 +5,56 @@ type Config struct {
 	Role  string
 	Iface string
 
-	FirewallMode bool
-	FwArgs       []string
+	FirewallMode   bool
+	FwArgs         []string
+	BalancerMode   bool
+	BalancerArgs   []string
+}
+
+// ── Reverse-proxy types ─────────────────────────────────────────────────────
+
+// RpBackend mirrors the BPF struct rp_backend.
+type RpBackend struct {
+	RealIP  [4]byte  // network byte order
+	RealMAC [6]byte
+	Ifindex uint32
+	Pad     [2]byte
+}
+
+// RpFlowKey mirrors the BPF struct rp_flow_key.
+type RpFlowKey struct {
+	SrcIP   [4]byte
+	DstIP   [4]byte
+	SrcPort uint16
+	DstPort uint16
+	Proto   uint8
+	Pad     [3]byte
+}
+
+// RpCtVal mirrors the BPF struct rp_ct_val.
+type RpCtVal struct {
+	BackendIdx uint32
+	LastSeenNs uint64
+}
+
+// BackendCfg is the userspace description of one backend.
+type BackendCfg struct {
+	ID      string `json:"id"`
+	IP      string `json:"ip"`
+	MAC     string `json:"mac"`
+	Ifindex int    `json:"ifindex"`
+}
+
+// ServiceCfg is the userspace description of one L4 service.
+type ServiceCfg struct {
+	Name     string       `json:"name"`
+	Hostname string       `json:"hostname"`
+	Backends []BackendCfg `json:"backends"`
+}
+
+// LbConfig is the full load-balancer configuration (persisted as JSON).
+type LbConfig struct {
+	Services []ServiceCfg `json:"services"`
 }
 
 

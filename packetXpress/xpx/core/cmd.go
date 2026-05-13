@@ -11,13 +11,21 @@ import (
 )
 
 // ParseFlags handles the top-level CLI.
-// Detects "fw" subcommand first, otherwise parses normal XDP flags.
+// Detects "fw" / "lb" subcommands first, otherwise parses normal XDP flags.
 func ParseFlags() *utils.Config {
 	// ---- Detect "fw" subcommand ----
 	if len(os.Args) > 1 && os.Args[1] == "fw" {
 		return &utils.Config{
 			FirewallMode: true,
 			FwArgs:       os.Args[2:],
+		}
+	}
+
+	// ---- Detect "lb" subcommand ----
+	if len(os.Args) > 1 && os.Args[1] == "lb" {
+		return &utils.Config{
+			BalancerMode: true,
+			BalancerArgs: os.Args[2:],
 		}
 	}
 
@@ -238,6 +246,129 @@ func handleFwLocalIP(args []string) {
 
 func handleFwSync() {
 	if err := FwSync(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+/* ---- helpers ---- */
+
+/* ══════════════════════════════════════════════════════════════
+ * lb — L4 reverse-proxy management subcommands
+ * ══════════════════════════════════════════════════════════════ */
+
+// HandleBalancerCommand dispatches "lb" subcommands.
+func HandleBalancerCommand(args []string) {
+	if len(args) == 0 {
+		lbUsage()
+		os.Exit(1)
+	}
+	subcmd := args[0]
+	subArgs := args[1:]
+	switch subcmd {
+	case "add-service":
+		handleLbAddService(subArgs)
+	case "del-service":
+		handleLbDelService(subArgs)
+	case "list", "ls":
+		handleLbList()
+	case "sync":
+		handleLbSync()
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown lb subcommand: %s\n", subcmd)
+		lbUsage()
+		os.Exit(1)
+	}
+}
+
+func lbUsage() {
+	fmt.Fprint(os.Stderr, `Load-balancer subcommands:
+
+  add-service --hostname <sni-or-host> [--name <name>]
+              --backends <id:ip:mac:ifindex>[,...]
+
+  del-service --hostname <sni-or-host>
+
+  list
+
+  sync
+
+`)
+}
+
+func handleLbAddService(args []string) {
+	fs := flag.NewFlagSet("lb add-service", flag.ExitOnError)
+	hostname := fs.String("hostname", "", "SNI / HTTP Host value (required)")
+	name := fs.String("name", "", "Human-readable service name (defaults to hostname)")
+	backendsStr := fs.String("backends", "", "Comma-separated id:ip:mac:ifindex triples (required)")
+	fs.Parse(args)
+
+	if *hostname == "" || *backendsStr == "" {
+		fmt.Fprintln(os.Stderr, "--hostname and --backends are required")
+		fs.Usage()
+		os.Exit(1)
+	}
+	if *name == "" {
+		*name = *hostname
+	}
+
+	var backends []utils.BackendCfg
+	for _, part := range strings.Split(*backendsStr, ",") {
+		fields := strings.Split(strings.TrimSpace(part), ":")
+		if len(fields) < 4 {
+			fmt.Fprintf(os.Stderr, "invalid backend %q — format: id:ip:mac:ifindex\n", part)
+			os.Exit(1)
+		}
+		ifIdx, err := strconv.Atoi(fields[3])
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "invalid ifindex in %q: %v\n", part, err)
+			os.Exit(1)
+		}
+		backends = append(backends, utils.BackendCfg{
+			ID:      fields[0],
+			IP:      fields[1],
+			MAC:     fields[2],
+			Ifindex: ifIdx,
+		})
+	}
+
+	svc := utils.ServiceCfg{
+		Name:     *name,
+		Hostname: *hostname,
+		Backends: backends,
+	}
+
+	if err := LbAddService(nil, svc); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Service %q added with %d backend(s).\n", *hostname, len(backends))
+}
+
+func handleLbDelService(args []string) {
+	fs := flag.NewFlagSet("lb del-service", flag.ExitOnError)
+	hostname := fs.String("hostname", "", "SNI / HTTP Host (required)")
+	fs.Parse(args)
+	if *hostname == "" {
+		fmt.Fprintln(os.Stderr, "--hostname required")
+		os.Exit(1)
+	}
+	if err := LbRemoveService(nil, *hostname); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	fmt.Printf("Service %q removed.\n", *hostname)
+}
+
+func handleLbList() {
+	if err := LbListServices(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+func handleLbSync() {
+	if err := LbSync(nil); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}

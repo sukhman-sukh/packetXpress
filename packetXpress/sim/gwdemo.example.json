@@ -1,0 +1,16 @@
+{
+  "listen": "0.0.0.0:8080",
+  "services": [
+    {
+      "hostname": "alpha.demo",
+      "backends": [
+        { "id": "b1", "address": "127.0.0.1:9001" },
+        { "id": "b2", "address": "127.0.0.1:9002" }
+      ]
+    },
+    {
+      "hostname": "beta.demo",
+      "backends": [{ "id": "b3", "address": "127.0.0.1:9003" }]
+    }
+  ]
+}

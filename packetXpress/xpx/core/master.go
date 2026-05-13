@@ -56,12 +56,7 @@ func SetupMaster(rootColl *utils.RootCollection) error {
 			coll.Close()
 			return fmt.Errorf("invalid program FD for %s: %d", progName, fd)
 		}
-		fmt.Printf("populate %d", fd)
-		// if err := rootColl.MasterMap.Put(uint32(i), fd); err != nil {
-		// 	coll.Close()
-		// 	return fmt.Errorf("populate master_array index %d: %w", i, err)
-		// }
-		if err := rootColl.MasterMap.Put(uint32(i), uint32(fd)); err != nil {
+		if err := rootColl.MasterMap.Put(uint32(i), prog); err != nil {
 			coll.Close()
 			return fmt.Errorf("populate master_array index %d: %w", i, err)
 		}
