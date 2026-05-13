@@ -1,0 +1,5 @@
+2026/05/13 12:55:58 registered service hostname="alpha.demo" backends=2
+2026/05/13 12:55:58 registered service hostname="beta.demo" backends=1
+2026/05/13 12:55:58 gateway listening on [::]:8080 (HTTP Host or TLS SNI selects service)
+2026/05/13 12:55:58 [gw] no service for hostname="unknown.invalid", dropping
+2026/05/13 12:56:01 shutdown complete

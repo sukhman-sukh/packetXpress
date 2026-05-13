@@ -122,11 +122,20 @@ PIDS+=("$!")
 # Wait for ports to bind
 wait_port() {
     local port="$1" tries=40
-    while ! curl -sS --max-time 0.2 "http://127.0.0.1:${port}/" >/dev/null 2>&1; do
-        tries=$((tries-1))
-        [ "$tries" -le 0 ] && return 1
-        sleep 0.1
-    done
+    # For port 8080 (gateway), use proper Host header; for backends, direct connection is fine
+    if [ "$port" = "8080" ]; then
+        while ! curl -sS --max-time 0.2 -H 'Host: alpha.demo' "http://127.0.0.1:${port}/" >/dev/null 2>&1; do
+            tries=$((tries-1))
+            [ "$tries" -le 0 ] && return 1
+            sleep 0.1
+        done
+    else
+        while ! curl -sS --max-time 0.2 "http://127.0.0.1:${port}/" >/dev/null 2>&1; do
+            tries=$((tries-1))
+            [ "$tries" -le 0 ] && return 1
+            sleep 0.1
+        done
+    fi
 }
 for p in 9001 9002 9003 8080; do
     if ! wait_port "$p"; then

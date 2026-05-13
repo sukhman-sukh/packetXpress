@@ -1,0 +1,88 @@
+=== RUN   TestParseSNI_ValidClientHello
+--- PASS: TestParseSNI_ValidClientHello (0.00s)
+=== RUN   TestParseSNI_NoSNI
+--- PASS: TestParseSNI_NoSNI (0.00s)
+=== RUN   TestParseSNI_NotTLS
+--- PASS: TestParseSNI_NotTLS (0.00s)
+=== RUN   TestParseSNI_TruncatedPacket
+--- PASS: TestParseSNI_TruncatedPacket (0.00s)
+=== RUN   TestParseHTTPHost
+--- PASS: TestParseHTTPHost (0.00s)
+=== RUN   TestMaglev_IsPrime
+--- PASS: TestMaglev_IsPrime (0.00s)
+=== RUN   TestMaglev_EvenDistribution
+--- PASS: TestMaglev_EvenDistribution (0.00s)
+=== RUN   TestMaglev_Stability_AddBackend
+    sim_test.go:150: Maglev stability on 1/4 removal: 99.95%
+--- PASS: TestMaglev_Stability_AddBackend (0.00s)
+=== RUN   TestMaglev_SameFlowSameBackend
+--- PASS: TestMaglev_SameFlowSameBackend (0.00s)
+=== RUN   TestConnTrack_HitMiss
+--- PASS: TestConnTrack_HitMiss (0.00s)
+=== RUN   TestConnTrack_LRUEviction
+--- PASS: TestConnTrack_LRUEviction (0.00s)
+=== RUN   TestGateway_HTTPRouting
+--- PASS: TestGateway_HTTPRouting (0.01s)
+=== RUN   TestGateway_UnknownHostDropped
+2026/05/13 12:55:59 [gw] no service for hostname="unknown.test", dropping
+--- PASS: TestGateway_UnknownHostDropped (0.00s)
+=== RUN   TestGateway_TLSRouting
+--- PASS: TestGateway_TLSRouting (0.01s)
+=== RUN   TestGateway_FlowStickiness
+    sim_test.go:350: All 5 requests pinned to backend: sticky-1
+--- PASS: TestGateway_FlowStickiness (1.00s)
+=== RUN   TestGateway_MaglevDistribution
+    sim_test.go:417: Backend distribution:
+    sim_test.go:420:   dist-3: 52
+    sim_test.go:420:   dist-2: 60
+    sim_test.go:420:   dist-0: 46
+    sim_test.go:420:   dist-1: 42
+--- PASS: TestGateway_MaglevDistribution (0.05s)
+=== RUN   TestSelfValidation
+=== RUN   TestSelfValidation/SNI/Valid
+=== RUN   TestSelfValidation/SNI/NoSNI
+=== RUN   TestSelfValidation/SNI/NotTLS
+=== RUN   TestSelfValidation/SNI/Truncated
+=== RUN   TestSelfValidation/Host/Parsing
+=== RUN   TestSelfValidation/Maglev/Prime
+=== RUN   TestSelfValidation/Maglev/Distribution
+=== RUN   TestSelfValidation/Maglev/Stability
+    sim_test.go:150: Maglev stability on 1/4 removal: 99.95%
+=== RUN   TestSelfValidation/Maglev/SameFlow
+=== RUN   TestSelfValidation/ConnTrack/HitMiss
+=== RUN   TestSelfValidation/ConnTrack/LRU
+=== RUN   TestSelfValidation/Gateway/HTTP
+=== RUN   TestSelfValidation/Gateway/TLS
+=== RUN   TestSelfValidation/Gateway/Stickiness
+    sim_test.go:350: All 5 requests pinned to backend: sticky-2
+=== RUN   TestSelfValidation/Gateway/Distribution
+    sim_test.go:417: Backend distribution:
+    sim_test.go:420:   dist-3: 45
+    sim_test.go:420:   dist-0: 49
+    sim_test.go:420:   dist-1: 48
+    sim_test.go:420:   dist-2: 58
+=== NAME  TestSelfValidation
+    sim_test.go:467: 
+        
+        ══════════════════════════════════════
+    sim_test.go:468:   PacketXpress L4 Proxy — Self-Validation
+    sim_test.go:469:   PASS: 15  FAIL: 0  TOTAL: 15
+    sim_test.go:470: ══════════════════════════════════════
+--- PASS: TestSelfValidation (1.04s)
+    --- PASS: TestSelfValidation/SNI/Valid (0.00s)
+    --- PASS: TestSelfValidation/SNI/NoSNI (0.00s)
+    --- PASS: TestSelfValidation/SNI/NotTLS (0.00s)
+    --- PASS: TestSelfValidation/SNI/Truncated (0.00s)
+    --- PASS: TestSelfValidation/Host/Parsing (0.00s)
+    --- PASS: TestSelfValidation/Maglev/Prime (0.00s)
+    --- PASS: TestSelfValidation/Maglev/Distribution (0.00s)
+    --- PASS: TestSelfValidation/Maglev/Stability (0.01s)
+    --- PASS: TestSelfValidation/Maglev/SameFlow (0.00s)
+    --- PASS: TestSelfValidation/ConnTrack/HitMiss (0.00s)
+    --- PASS: TestSelfValidation/ConnTrack/LRU (0.00s)
+    --- PASS: TestSelfValidation/Gateway/HTTP (0.01s)
+    --- PASS: TestSelfValidation/Gateway/TLS (0.01s)
+    --- PASS: TestSelfValidation/Gateway/Stickiness (1.01s)
+    --- PASS: TestSelfValidation/Gateway/Distribution (0.01s)
+PASS
+ok  	packetxpress-sim	2.120s
